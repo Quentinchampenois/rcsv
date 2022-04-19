@@ -16,7 +16,6 @@ fn valid_username(username: &str) -> bool {
 
     for invalid_char in invalid_chars {
         if username.contains(invalid_char) {
-            //println!("Invalid char: {:?} for username: {:?}", invalid_char, username);
             return false;
         }
     }
@@ -36,7 +35,6 @@ fn read_csv() -> Result<(), Box<dyn Error>> {
                 if !valid_username(&record.username) {
                     println!("Line {:?} : Username {:?} is invalid", idx + 1, record.username)
                 }
-                println!("{:?} - {:?}", record.email, record.username);
             },
             Err(err) => {
                 println!("Error reading CSV from <stdin>: {}", err);

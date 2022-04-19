@@ -26,13 +26,22 @@ fn valid_username(username: &str) -> bool {
 }
 
 fn read_csv() -> Result<(), Box<dyn Error>> {
-    let mut rdr = csv::Reader::from_reader(io::stdin());
+    let mut rdr = csv::ReaderBuilder::new()
+        .has_headers(false)
+        .from_reader(io::stdin());
     for (idx, result) in rdr.records().enumerate() {
-        let csv_record = result?;
-        let record: Record = csv_record.deserialize(None)?;
-        //println!("{:?}", record.email);
-        if !valid_username(&record.username) {
-            println!("Line {:?} : Username {:?} is invalid", idx + 1, record.username)
+        match result {
+            Ok(csv_record) => {
+                let record: Record = csv_record.deserialize(None)?;
+                if !valid_username(&record.username) {
+                    println!("Line {:?} : Username {:?} is invalid", idx + 1, record.username)
+                }
+                println!("{:?} - {:?}", record.email, record.username);
+            },
+            Err(err) => {
+                println!("Error reading CSV from <stdin>: {}", err);
+                process::exit(1);
+            }
         }
     }
     Ok(())

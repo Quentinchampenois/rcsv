@@ -1,6 +1,9 @@
 use std::error::Error;
 use std::io;
+use std::env;
 use std::process;
+use std::path::Path;
+
 
 #[macro_use]
 extern crate serde_derive;
@@ -24,10 +27,10 @@ fn valid_username(username: &str) -> bool {
     return true;
 }
 
-fn read_csv() -> Result<(), Box<dyn Error>> {
+fn read_csv(path: &Path) -> Result<(), Box<dyn Error>> {
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(false)
-        .from_reader(io::stdin());
+        .from_path(path)?;
     for (idx, result) in rdr.records().enumerate() {
         match result {
             Ok(csv_record) => {
@@ -46,8 +49,17 @@ fn read_csv() -> Result<(), Box<dyn Error>> {
 }
 
 fn main() {
-    if let Err(err) = read_csv() {
+
+    let mut args = env::args();
+
+    let path = &args.nth(1).expect("You must provide a filename");
+    let path = Path::new(path);
+    println!("Starting CSV check...");
+    
+    if let Err(err) = read_csv(path) {
         println!("Error while reading CSV: {}", err);
         process::exit(1);
     }
+
+    println!("End of process");
 }
